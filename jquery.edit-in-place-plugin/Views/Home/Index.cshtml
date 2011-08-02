@@ -6,7 +6,20 @@
 
 <span class="edit-this">Editing container</span>
 
+<div class="edit-this-two">Second Edit Container</div>
+
 <script type="text/javascript">
     $(".edit-this").editInPlace({
+        commitChangesStart: function (event, data, clicked) {
+            alert("Started to commit changes");
+        }
     });
+
+    $(".edit-this-two").editInPlace({
+        commitChangesStart: function (event, data, clicked) {
+            alert("Commiting changes on the second element");
+        }
+    });
+
+    $().initializeEditors();
 </script>

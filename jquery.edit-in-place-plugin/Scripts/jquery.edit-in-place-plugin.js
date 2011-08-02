@@ -4,10 +4,14 @@
         editInPlace: function (options) {
             $(this).each(function () {
                 var settings = $.extend({
-                    onDoneEditing: function () { },
-                    onUpdateDisplay: function () { },
+                    commitChangesStart: function () { },
+                    commitChanges: function () { },
+                    commitChangesComplete: function () { },
                     originalValue: ""
                 }, options);
+
+                var valueChanged = false;
+                var elm = $(this);
 
                 settings.originalValue = $(this).text().trim();
                 $(this).html("");
@@ -28,43 +32,46 @@
 
 
                 var originalBgColor;
+                //Update the hover color.
                 $(this).hover(function () {
                     originalBgColor = $(this).css("backgroundColor");
-                    //alert(originalBgColor);
                     $(this).animate({ backgroundColor: "#d7d7d7" }, 100);
                 },
-                   function () {
-                       //alert(originalBgColor);
-                       //$(this).animate({ backgroundColor: ""}, 100);
-                       $(this).css("background-color", "transparent");
-                   }
-                   );
+                function () {
+                    $(this).css("background-color", "transparent");
+                });
 
-                $(this).bind("eipDoneEditing", { "action": settings.onDoneEditing }, function (event, data, clicked) {
+                $(this).bind("eipCommitChangesStart", { "action": settings.commitChangesStart }, function (event, data, clicked) {
                     event.data.action(event, data, clicked);
                 });
 
-                $(this).bind("eipUpdateDisplay", { "action": settings.onUpdateDisplay }, function (event, data, clicked) {
+                $(this).bind("eipCommitChanges", { "action": settings.commitChanges }, function (event, data, clicked) {
                     event.data.action(event, data, clicked);
                 });
 
+                $(this).bind("eipCommitChangesComplete", { "action": settings.commitChangesComplete }, function (event, data, clicked) {
+                    event.data.action(event, data, clicked);
+                });
 
+                function initControl() {
+                    $(elm).children().children(".eip_editor").keypress(function (event) {
+                        if (event.which == 13) {
+                            $(elm).trigger("eipCommitChangesStart", [null, $(elm)]);
+                            $(elm).children(".eip-display").text($(this).val());
+                            $(elm).children(".eip-editor-wrapper").hide();
+                            $(elm).children(".eip-display").show();
+                        } else {
+                            if ($(this).val() != settings.originalValue) {
+                                alert("value changed");
+                            }
+                        }
+                    });
+                }
 
-
-
+                initControl();
             });
         },
         initializeEditors: function () {
-            $(".eip_editor").live("keypress", function (event) {
-                if (event.which == "13") {
-                    //alert("Enter on editor textbox " + $(this).attr("id"));
-                    //Send back the parent which is the plugin element.
-                    $(this).parent().parent().trigger("eipDoneEditing", [null, $(this).parent()]);
-                    $(this).parent().prev().text($(this).val());
-                    $(".eip-editor-wrapper").hide();
-                    $(".eip-display").show();
-                }
-            });
 
             $(".eip-editor-warapper").each(function () {
                 $(this).hide();
@@ -77,5 +84,5 @@
                 }
             });
         }
-    });
+    })
 })(jQuery);
