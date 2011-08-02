@@ -1,0 +1,5 @@
+c:\users\michael.taylor\documents\visual studio 2010\Projects\jquery.edit-in-place-plugin\jquery.edit-in-place-plugin\bin\jquery.edit-in-place-plugin.dll
+c:\users\michael.taylor\documents\visual studio 2010\Projects\jquery.edit-in-place-plugin\jquery.edit-in-place-plugin\bin\jquery.edit-in-place-plugin.pdb
+c:\users\michael.taylor\documents\visual studio 2010\Projects\jquery.edit-in-place-plugin\jquery.edit-in-place-plugin\obj\Debug\ResolveAssemblyReference.cache
+c:\users\michael.taylor\documents\visual studio 2010\Projects\jquery.edit-in-place-plugin\jquery.edit-in-place-plugin\obj\Debug\jquery.edit-in-place-plugin.dll
+c:\users\michael.taylor\documents\visual studio 2010\Projects\jquery.edit-in-place-plugin\jquery.edit-in-place-plugin\obj\Debug\jquery.edit-in-place-plugin.pdb
