@@ -9,17 +9,25 @@
 <div class="edit-this-two">Second Edit Container</div>
 
 <script type="text/javascript">
-    $(".edit-this").editInPlace({
-        commitChangesStart: function (event, data, clicked) {
-            alert("Started to commit changes");
-        }
-    });
+    $().ready(function () {
+        $(".edit-this").editInPlace({
+            commitChangesStart: function (event, data, clicked) {
+                //alert("Started to commit changes");
+            }
+        });
 
-    $(".edit-this-two").editInPlace({
-        commitChangesStart: function (event, data, clicked) {
-            alert("Commiting changes on the second element");
-        }
-    });
+        $(".edit-this-two").editInPlace({
+            commitChangesStart: function (event, data, clicked) {
+                $(this).hideEditor();
+            },
+            valueChanged: function (event, data) {
 
-    $().initializeEditors();
+            },
+            cancelEdit: function (event, data) {
+
+            }
+        });
+
+        //$().initializeEditors();
+    });
 </script>

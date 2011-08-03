@@ -66,3 +66,17 @@ textarea
 {
     display: none;
 }
+
+.eip-editor-wrapper
+{
+    border:1px solid #99aaee;
+    padding:2px 2px;
+    margin:2px 0;
+}
+
+.eip-editor-wrapper input
+{
+    border:0px;
+    outline:none;
+    padding:0px;
+}
