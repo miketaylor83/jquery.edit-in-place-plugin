@@ -11,9 +11,15 @@
 <script type="text/javascript">
     $().ready(function () {
         $(".edit-this").editInPlace({
+            applyChangesClass: "applyLink",
+            applyChangesText: "DO IT!!",
+            customErrorMessage: "This is necessary!!",
             commitChangesStart: function (event, data, clicked) {
-                alert(data.newValue);
-                //$(this).hideEditor();
+                if (data.valueChanged) {
+                    alert("Something changed");
+                } else {
+                    alert("Nothing changed");
+                }
             }
         });
 

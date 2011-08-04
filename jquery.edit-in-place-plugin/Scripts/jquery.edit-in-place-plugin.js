@@ -1,6 +1,29 @@
-﻿(function ($) {
+﻿/*
+Copyright (c) 2011 
+License Type: MIT
+L Michael Taylor 
+website: http://lmichael.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in the 
+Software without restriction, including without limitation the rights to use, 
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+(function ($) {
     //the counter is established up here to keep track of all the editors
-    //
     var count = 0;
     $.extend($.fn, {
         editInPlace: function (options) {
@@ -17,7 +40,12 @@
                     hideOnChangesComplete: true,
                     hideOnCancelChanges: true,
                     setHtmlOnChangesStart: true,
-                    domIdPrefix: "eip"
+                    domIdPrefix: "eip",
+                    applyChangesClass: "",
+                    applyChangesText: "Apply",
+                    cancelChangesClass: "",
+                    cancelChangesText: "Cancel",
+                    customErrorMessage: "Field required"
                 }, options);
                 var data = {};
                 var valueChanged = false;
@@ -33,9 +61,10 @@
                 $(this).addClass("eip-wrapper");
                 $(this).append("<span id='eip_display_" + count + "' class='eip-display'>" + settings.originalValue + "</span>");
                 $(this).append("<div class='eip-editor-wrapper' style='display:none;'><form id='frm-eip_" + count + "' class='frm-eip'>" +
-                    "<input id='eip_" + count + "' class='eip_editor required' type='text' value='" + settings.originalValue + "' />" +
+                    "<input id='eip_" + count + "' class='eip_editor required' title='" + settings.customErrorMessage + "' type='text' value='" + settings.originalValue + "' />" +
                     "<input id='eip_currentValue_" + count + "' class='eip-currentValue' type='hidden' />" +
-                    "<a href='javascript:void(0)' class='applyChanges'>Apply</a></form></div>");
+                    "<a href='javascript:void(0)' class='eip-cancelChanges " + settings.cancelChangesClass + "'>" + settings.cancelChangesText + "</a>&nbsp;" +
+                    "<a href='javascript:void(0)' class='eip-applyChanges " + settings.applyChangesClass + "'>" + settings.applyChangesText + "</a></form></div>");
 
                 //Counter to gurantee that we will have a unique editor
                 count++;
@@ -56,7 +85,7 @@
                 });
 
                 //For the apply changes link, we want to have that click event also trigger the Commit Changes Start event.
-                $(this).children(".eip-editor-wrapper").children().children("a.applyChanges").click(function () {
+                $(this).children(".eip-editor-wrapper").children().children("a.eip-applyChanges").click(function () {
 
                     //Trigger the changes start event. All submission stuff should filter
                     //through to the Changes Start event.
@@ -92,12 +121,17 @@
 
                 });
 
+                $(this).children(".eip-editor-wrapper").children().children("a.eip-cancelChanges").click(function () {
+                    $(elm).trigger("eipCancelEdit", [data, $(elm)]);
+                    event.stopPropagation();
+                });
+
                 //We don't want to do a postback or get when enter is triggered.
                 var frm = $(elm).children().children(".frm-eip");
 
                 //Set up validate on the form container, since we have
                 //the textbox set to required.
-                $(frm).validate();
+                $(frm).validate({ submitHandler: function () { } });
 
                 //On blur of the textbox, check its validity.
                 $(frm).children(".eip_editor").blur(function () {
@@ -109,12 +143,16 @@
 
                 //Event to start sending the changes to the client.
                 $(this).bind("eipCommitChangesStart", { "action": settings.commitChangesStart }, function (event, data, clicked) {
-                    event.data.action(event, data, clicked);
 
-                    //setHtmlOnChanges start is in the options and is defaulted to true.
-                    if (settings.setHtmlOnChangesStart == true) {
-                        $(elm).setText(data.newValue);
+                    if (data.valueChanged == true) {
+                        //setHtmlOnChanges start is in the options and is defaulted to true.
+                        if (settings.setHtmlOnChangesStart == true) {
+                            $(elm).setText(data.newValue);
+                        }
+                    } else {
+
                     }
+                    event.data.action(event, data, clicked);
 
                     //Need to run the changes complete after the client side is done with this event.
                     $(elm).trigger("eipCommitChangesComplete", [data, $(elm)]);
@@ -137,6 +175,8 @@
 
                 //Cancel will remove any changes and clean the element up, up to you to hide the editor.
                 $(this).bind("eipCancelEdit", { "action": settings.cancelEdit }, function (event, data) {
+                    $(frm).children(".eip_editor").val(settings.originalValue);
+                    $(frm).children(".eip_editor").valid();
                     event.data.action(event, data);
                     if (settings.hideOnCancelChanges == true) {
                         $(elm).hideEditor();
