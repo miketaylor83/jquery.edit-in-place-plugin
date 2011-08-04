@@ -12,13 +12,14 @@
     $().ready(function () {
         $(".edit-this").editInPlace({
             commitChangesStart: function (event, data, clicked) {
-                //alert("Started to commit changes");
+                alert(data.newValue);
+                //$(this).hideEditor();
             }
         });
 
         $(".edit-this-two").editInPlace({
             commitChangesStart: function (event, data, clicked) {
-                $(this).hideEditor();
+                //$(this).hideEditor();
             },
             valueChanged: function (event, data) {
 
