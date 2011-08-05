@@ -145,17 +145,36 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 $(this).bind("eipCommitChangesStart", { "action": settings.commitChangesStart }, function (event, data, clicked) {
 
                     if (data.valueChanged == true) {
-                        //setHtmlOnChanges start is in the options and is defaulted to true.
-                        if (settings.setHtmlOnChangesStart == true) {
-                            $(elm).setText(data.newValue);
+                        var cont = false;
+
+                        if (settings.required == true) {
+                            if ($(frm).children(".eip_editor")) {
+                                cont = true;
+                            } else {
+                                cont = false;
+                            }
+                        } else {
+                            cont = true;
+                        }
+
+
+                        if (cont) {
+                            event.data.action(event, data, clicked);
+
+                            //Need to run the changes complete after the client side is done with this event.
+                            $(elm).trigger("eipCommitChangesComplete", [data, $(elm)]);
+
+                            //setHtmlOnChanges start is in the options and is defaulted to true.
+                            if (settings.setHtmlOnChangesStart == true) {
+                                $(elm).setText(data.newValue);
+                            }
                         }
                     } else {
-
+                        //Effectively canceling because the value didn't change.
+                        data.valueChanged = false;
+                        $(elm).trigger("eipCommitChangesComplete", [data, $(elm)]);
                     }
-                    event.data.action(event, data, clicked);
 
-                    //Need to run the changes complete after the client side is done with this event.
-                    $(elm).trigger("eipCommitChangesComplete", [data, $(elm)]);
                 });
 
                 $(this).bind("eipCommitChangesComplete", { "action": settings.commitChangesComplete }, function (event, data, clicked) {
@@ -164,6 +183,9 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                     //Check to see if the setting has been overridden.
                     if (settings.hideOnChangesComplete == true) {
                         $(elm).hideEditor();
+                    }
+                    if (data.valueChanged == true) {
+                        data.originalValue = data.newValue;
                     }
                 });
 
@@ -175,7 +197,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
                 //Cancel will remove any changes and clean the element up, up to you to hide the editor.
                 $(this).bind("eipCancelEdit", { "action": settings.cancelEdit }, function (event, data) {
-                    $(frm).children(".eip_editor").val(settings.originalValue);
+                    $(frm).children(".eip_editor").val(data.originalValue);
                     $(frm).children(".eip_editor").valid();
                     event.data.action(event, data);
                     if (settings.hideOnCancelChanges == true) {
